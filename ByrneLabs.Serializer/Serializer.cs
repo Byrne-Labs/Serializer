@@ -9,22 +9,29 @@ namespace ByrneLabs.Serializer
 {
     internal class Serializer
     {
-        internal static readonly Dictionary<Type, uint> RecognizedTypes = new Dictionary<Type, uint> { { typeof(bool), 1 }, { typeof(char), 2 }, { typeof(byte), 3 }, { typeof(short), 4 }, { typeof(int), 5 }, { typeof(long), 6 }, { typeof(ushort), 7 }, { typeof(uint), 8 }, { typeof(ulong), 9 }, { typeof(float), 10 }, { typeof(double), 11 }, { typeof(DateTime), 12 }, { typeof(Guid), 13 }, { typeof(string), ushort.MaxValue - 1 } };
-        private readonly Dictionary<(Type, FieldInfo), uint> _fieldsIndex = new Dictionary<(Type, FieldInfo), uint>();
+        private class InstanceComparer : IEqualityComparer<object>
+        {
+            bool IEqualityComparer<object>.Equals(object x, object y) => ReferenceEquals(x, y);
+
+            int IEqualityComparer<object>.GetHashCode(object obj) => obj.GetHashCode();
+        }
+
+        internal static readonly IDictionary<Type, uint> RecognizedTypes = new Dictionary<Type, uint> { { typeof(bool), 1 }, { typeof(char), 2 }, { typeof(byte), 3 }, { typeof(short), 4 }, { typeof(int), 5 }, { typeof(long), 6 }, { typeof(ushort), 7 }, { typeof(uint), 8 }, { typeof(ulong), 9 }, { typeof(float), 10 }, { typeof(double), 11 }, { typeof(DateTime), 12 }, { typeof(Guid), 13 }, { typeof(string), ushort.MaxValue - 1 } };
+        private readonly IDictionary<(Type, FieldInfo), uint> _fieldsIndex = new Dictionary<(Type, FieldInfo), uint>();
         private readonly Type[] _knownTypes = { typeof(bool), typeof(char), typeof(byte), typeof(short), typeof(int), typeof(long), typeof(ushort), typeof(uint), typeof(ulong), typeof(float), typeof(double), typeof(DateTime), typeof(string), typeof(Guid) };
         private readonly Stack<(object, uint)> _objectsToSerialize = new Stack<(object, uint)>();
-        private readonly Dictionary<uint, byte[]> _serializedArrays = new Dictionary<uint, byte[]>();
-        private readonly Dictionary<uint, byte[]> _serializedFields = new Dictionary<uint, byte[]>();
-        private readonly Dictionary<uint, byte[]> _serializedKnownTypeObjects = new Dictionary<uint, byte[]>();
-        private readonly Dictionary<uint, byte[]> _serializedObjects = new Dictionary<uint, byte[]>();
-        private readonly Dictionary<object, uint> _serializedObjectsIndex = new Dictionary<object, uint>();
-        private readonly Dictionary<uint, byte[]> _serializedStrings = new Dictionary<uint, byte[]>();
-        private readonly Dictionary<uint, byte[]> _serializedTypes = new Dictionary<uint, byte[]>();
-        private readonly Dictionary<uint, FieldInfo[]> _typeFields = new Dictionary<uint, FieldInfo[]>();
-        private readonly Dictionary<Type, uint> _typeIndex = new Dictionary<Type, uint>();
+        private readonly IDictionary<uint, byte[]> _serializedArrays = new Dictionary<uint, byte[]>();
+        private readonly IDictionary<uint, byte[]> _serializedFields = new Dictionary<uint, byte[]>();
+        private readonly IDictionary<uint, byte[]> _serializedKnownTypeObjects = new Dictionary<uint, byte[]>();
+        private readonly IDictionary<uint, byte[]> _serializedObjects = new Dictionary<uint, byte[]>();
+        private readonly IDictionary<object, uint> _serializedObjectsIndex = new Dictionary<object, uint>(new InstanceComparer());
+        private readonly IDictionary<uint, byte[]> _serializedStrings = new Dictionary<uint, byte[]>();
+        private readonly IDictionary<uint, byte[]> _serializedTypes = new Dictionary<uint, byte[]>();
+        private readonly IDictionary<uint, FieldInfo[]> _typeFields = new Dictionary<uint, FieldInfo[]>();
+        private readonly IDictionary<Type, uint> _typeIndex = new Dictionary<Type, uint>();
         private uint _nextId = ushort.MaxValue;
 
-        private static void WriteSerializedItems(BinaryWriter binaryWriter, Dictionary<uint, byte[]> items)
+        private static void WriteSerializedItems(BinaryWriter binaryWriter, IDictionary<uint, byte[]> items)
         {
             binaryWriter.Write(items.Count);
             foreach (var item in items)

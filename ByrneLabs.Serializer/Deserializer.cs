@@ -8,14 +8,14 @@ namespace ByrneLabs.Serializer
 {
     internal class Deserializer
     {
-        private readonly Dictionary<uint, Array> _arrays = new Dictionary<uint, Array>();
+        private readonly IDictionary<uint, Array> _arrays = new Dictionary<uint, Array>();
         private readonly List<(Array, uint[])> _arraysToLoad = new List<(Array, uint[])>();
-        private readonly Dictionary<uint, FieldInfo> _fields = new Dictionary<uint, FieldInfo>();
-        private readonly Dictionary<uint, object> _knownTypeObjects = new Dictionary<uint, object>();
-        private readonly Dictionary<uint, object> _objects = new Dictionary<uint, object>();
+        private readonly IDictionary<uint, FieldInfo> _fields = new Dictionary<uint, FieldInfo>();
+        private readonly IDictionary<uint, object> _knownTypeObjects = new Dictionary<uint, object>();
+        private readonly IDictionary<uint, object> _objects = new Dictionary<uint, object>();
         private readonly List<(object, (uint, uint)[])> _objectToLoad = new List<(object, (uint, uint)[])>();
-        private readonly Dictionary<uint, string> _strings = new Dictionary<uint, string>();
-        private readonly Dictionary<uint, Type> _types = new Dictionary<uint, Type>();
+        private readonly IDictionary<uint, string> _strings = new Dictionary<uint, string>();
+        private readonly IDictionary<uint, Type> _types = new Dictionary<uint, Type>();
 
         public object Deserialize(byte[] bytes)
         {
