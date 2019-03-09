@@ -38,7 +38,7 @@ namespace ByrneLabs.Serializer
 
             PopulateObjects();
             PopulateArrays();
-            var rootObject = _objects[rootObjectId];
+            var rootObject = GetObject(rootObjectId);
 
             return rootObject;
         }
