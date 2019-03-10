@@ -25,13 +25,8 @@ namespace ByrneLabs.Serializer
         private readonly IDictionary<(Type, FieldInfo), uint> _fieldsIndex = new Dictionary<(Type, FieldInfo), uint>();
         private readonly Type[] _knownTypes = { typeof(bool), typeof(char), typeof(byte), typeof(short), typeof(int), typeof(long), typeof(ushort), typeof(uint), typeof(ulong), typeof(float), typeof(double), typeof(DateTime), typeof(string), typeof(Guid) };
         private readonly Stack<(object, uint)> _objectsToSerialize = new Stack<(object, uint)>();
-        private BinaryWriter _serializedArrays;
-        private BinaryWriter _serializedFields;
-        private BinaryWriter _serializedKnownTypeObjects;
-        private BinaryWriter _serializedObjects;
-        private readonly ObjectIndex _serializedObjectsIndex = new ObjectIndex();
-        private BinaryWriter _serializedStrings;
-        private BinaryWriter _serializedTypes;
+        private BinaryWriter _binaryWriter;
+        private readonly ObjectIndex _binaryWriterIndex = new ObjectIndex();
         private readonly IDictionary<uint, FieldInfo[]> _typeFields = new Dictionary<uint, FieldInfo[]>();
         private readonly IDictionary<Type, uint> _typeIndex = new Dictionary<Type, uint>();
         private uint _nextId = ushort.MaxValue;
@@ -47,21 +42,10 @@ namespace ByrneLabs.Serializer
 
         public void Serialize(Stream serializationStream, object obj)
         {
-            var arraysMemoryStream = new MemoryStream();
-            var fieldsMemoryStream = new MemoryStream();
-            var knownTypeObjectsMemoryStream = new MemoryStream();
-            var objectsMemoryStream = new MemoryStream();
-            var stringsMemoryStream = new MemoryStream();
-            var typesMemoryStream = new MemoryStream();
-
-            _serializedArrays = new BinaryWriter(arraysMemoryStream);
-            _serializedFields = new BinaryWriter(fieldsMemoryStream);
-            _serializedKnownTypeObjects = new BinaryWriter(knownTypeObjectsMemoryStream);
-            _serializedObjects = new BinaryWriter(objectsMemoryStream);
-            _serializedStrings = new BinaryWriter(stringsMemoryStream);
-            _serializedTypes = new BinaryWriter(typesMemoryStream);
+            _binaryWriter = new BinaryWriter(serializationStream, Encoding.UTF8, true);
 
             var rootObjectId = GetObjectId(obj);
+            _binaryWriter.Write(rootObjectId);
 
             while (_objectsToSerialize.Count > 0)
             {
@@ -69,16 +53,7 @@ namespace ByrneLabs.Serializer
                 SerializeObject(objectToDeserialize, objectId);
             }
 
-            using (var binaryWriter = new BinaryWriter(serializationStream, Encoding.UTF8, true))
-            {
-                binaryWriter.Write(rootObjectId);
-                binaryWriter.Write(typesMemoryStream.ToArray());
-                binaryWriter.Write(fieldsMemoryStream.ToArray());
-                binaryWriter.Write(stringsMemoryStream.ToArray());
-                binaryWriter.Write(knownTypeObjectsMemoryStream.ToArray());
-                binaryWriter.Write(objectsMemoryStream.ToArray());
-                binaryWriter.Write(arraysMemoryStream.ToArray());
-            }
+            _binaryWriter.Close();
         }
 
         private uint GetObjectId(object obj)
@@ -88,13 +63,13 @@ namespace ByrneLabs.Serializer
                 return 0;
             }
 
-            if (_serializedObjectsIndex.TryGetId(obj, out var objectId))
+            if (_binaryWriterIndex.TryGetId(obj, out var objectId))
             {
                 return objectId;
             }
 
             objectId = _nextId++;
-            _serializedObjectsIndex.Add(obj, objectId);
+            _binaryWriterIndex.Add(obj, objectId);
             _objectsToSerialize.Push((obj, objectId));
             return objectId;
         }
@@ -124,10 +99,10 @@ namespace ByrneLabs.Serializer
             _typeIndex.Add(type, typeId);
 
             var assemblyQualifiedNameBytes = Encoding.UTF8.GetBytes(type.AssemblyQualifiedName);
-            _serializedTypes.Write((byte)RecordType.Type);
-            _serializedTypes.Write(typeId);
-            _serializedTypes.Write(assemblyQualifiedNameBytes.Length);
-            _serializedTypes.Write(assemblyQualifiedNameBytes);
+            _binaryWriter.Write((byte)RecordType.Type);
+            _binaryWriter.Write(typeId);
+            _binaryWriter.Write(assemblyQualifiedNameBytes.Length);
+            _binaryWriter.Write(assemblyQualifiedNameBytes);
 
             var fields = new List<FieldInfo>();
             var baseType = type;
@@ -145,11 +120,11 @@ namespace ByrneLabs.Serializer
                 _fieldsIndex.Add((type, field), fieldId);
                 var fieldNameBytes = Encoding.UTF8.GetBytes(field.Name);
 
-                _serializedFields.Write((byte)RecordType.Field);
-                _serializedFields.Write(fieldId);
-                _serializedFields.Write(typeId);
-                _serializedFields.Write(fieldNameBytes.Length);
-                _serializedFields.Write(fieldNameBytes);
+                _binaryWriter.Write((byte)RecordType.Field);
+                _binaryWriter.Write(fieldId);
+                _binaryWriter.Write(typeId);
+                _binaryWriter.Write(fieldNameBytes.Length);
+                _binaryWriter.Write(fieldNameBytes);
             }
 
             if (type.BaseType != null)
@@ -166,10 +141,10 @@ namespace ByrneLabs.Serializer
             if (obj is string objString)
             {
                 var stringBytes = Encoding.UTF8.GetBytes(objString);
-                _serializedStrings.Write((byte)RecordType.String);
-                _serializedStrings.Write(objectId);
-                _serializedStrings.Write(stringBytes.Length);
-                _serializedStrings.Write(stringBytes);
+                _binaryWriter.Write((byte)RecordType.String);
+                _binaryWriter.Write(objectId);
+                _binaryWriter.Write(stringBytes.Length);
+                _binaryWriter.Write(stringBytes);
             }
             else if (objectType.IsArray)
             {
@@ -184,13 +159,13 @@ namespace ByrneLabs.Serializer
                     elementObjectIds.SetValue(elementObjectId, index);
                 }
 
-                _serializedArrays.Write((byte)RecordType.Array);
-                _serializedArrays.Write(objectId);
-                _serializedArrays.Write(elementTypeObjectId);
-                _serializedArrays.Write(array.Length);
+                _binaryWriter.Write((byte)RecordType.Array);
+                _binaryWriter.Write(objectId);
+                _binaryWriter.Write(elementTypeObjectId);
+                _binaryWriter.Write(array.Length);
                 for (long index = 0; index < array.Length; index++)
                 {
-                    _serializedArrays.Write(elementObjectIds[index]);
+                    _binaryWriter.Write(elementObjectIds[index]);
                 }
             }
             else if (Array.IndexOf(_knownTypes, objectType) >= 0)
@@ -243,11 +218,11 @@ namespace ByrneLabs.Serializer
 
                 var typeId = GetTypeId(objectType, objectType);
 
-                _serializedKnownTypeObjects.Write((byte)RecordType.KnownTypeObject);
-                _serializedKnownTypeObjects.Write(objectId);
-                _serializedKnownTypeObjects.Write(typeId);
-                _serializedKnownTypeObjects.Write(bytes.Length);
-                _serializedKnownTypeObjects.Write(bytes);
+                _binaryWriter.Write((byte)RecordType.KnownTypeObject);
+                _binaryWriter.Write(objectId);
+                _binaryWriter.Write(typeId);
+                _binaryWriter.Write(bytes.Length);
+                _binaryWriter.Write(bytes);
             }
             else
             {
@@ -261,16 +236,16 @@ namespace ByrneLabs.Serializer
                     fieldValueObjectIds[index] = GetObjectId(fieldValue);
                 }
 
-                _serializedObjects.Write((byte)RecordType.Object);
-                _serializedObjects.Write(objectId);
-                _serializedObjects.Write(typeId);
-                _serializedObjects.Write(fields.Length);
+                _binaryWriter.Write((byte)RecordType.Object);
+                _binaryWriter.Write(objectId);
+                _binaryWriter.Write(typeId);
+                _binaryWriter.Write(fields.Length);
                 for (var index = 0; index < fields.Length; index++)
                 {
                     var field = fields[index];
                     var fieldId = _fieldsIndex[(objectType, field)];
-                    _serializedObjects.Write(fieldId);
-                    _serializedObjects.Write(fieldValueObjectIds[index]);
+                    _binaryWriter.Write(fieldId);
+                    _binaryWriter.Write(fieldValueObjectIds[index]);
                 }
             }
         }
