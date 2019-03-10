@@ -19,9 +19,17 @@ namespace ByrneLabs.Serializer
 
         public object Deserialize(byte[] bytes)
         {
-            uint rootObjectId;
             using (var memoryStream = new MemoryStream(bytes))
-            using (var binaryReader = new BinaryReader(memoryStream))
+            {
+                return Deserialize(memoryStream);
+            }
+        }
+
+        public object Deserialize(Stream serializationStream)
+        {
+            uint rootObjectId;
+
+            using (var binaryReader = new BinaryReader(serializationStream, Encoding.UTF8, true))
             {
                 rootObjectId = binaryReader.ReadUInt32();
                 ReadTypes(binaryReader);
@@ -30,7 +38,7 @@ namespace ByrneLabs.Serializer
                 ReadKnownTypeObjects(binaryReader);
                 ReadObjects(binaryReader);
                 ReadArrays(binaryReader);
-                if (memoryStream.Length != memoryStream.Position)
+                if (serializationStream.Length != serializationStream.Position)
                 {
                     throw new InvalidOperationException("All items have been read but there is more left in the byte stream");
                 }

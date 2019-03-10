@@ -1,7 +1,29 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-  </PropertyGroup>
+    <PropertyGroup>
+        <BuildNumber>4</BuildNumber>
+        <ReleaseType>-alpha</ReleaseType>
+        <AssemblyVersion>1.0.0.$(BuildNumber)</AssemblyVersion>
+        <FileVersion>$(AssemblyVersion)</FileVersion>
+        <Version>$(FileVersion)$(ReleaseType)</Version>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
+        <Features>IOperation</Features>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <Company>Byrne Labs</Company>
+        <Product>Byrne Labs Serializer</Product>
+        <Owners>byrnelabs</Owners>
+        <Authors>byrnelabs</Authors>
+        <PackageLicenseUrl>http://www.gnu.org/licenses/lgpl-3.0.txt</PackageLicenseUrl>
+        <PackageProjectUrl>https://github.com/ByrneLabs/Serializer</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/ByrneLabs/Serializer</RepositoryUrl>
+    </PropertyGroup>
+
+    <Target Name="CopyPackage" AfterTargets="Pack">
+        <Copy SourceFiles="$(MSBuildProjectDirectory)/$(OutputPath)$(PackageId).$(PackageVersion).nupkg" DestinationFolder="$(SolutionDir)/bin" />
+    </Target>
 
 </Project>

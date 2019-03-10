@@ -43,6 +43,15 @@ namespace ByrneLabs.Serializer
 
         public byte[] Serialize(object obj)
         {
+            using (var memoryStream = new MemoryStream())
+            {
+                Serialize(memoryStream, obj);
+                return memoryStream.ToArray();
+            }
+        }
+
+        public void Serialize(Stream serializationStream, object obj)
+        {
             var rootObjectId = GetObjectId(obj);
 
             while (_objectsToSerialize.Count > 0)
@@ -51,8 +60,7 @@ namespace ByrneLabs.Serializer
                 SerializeObject(objectToDeserialize, objectId);
             }
 
-            using (var memoryStream = new MemoryStream(200))
-            using (var binaryWriter = new BinaryWriter(memoryStream))
+            using (var binaryWriter = new BinaryWriter(serializationStream, Encoding.UTF8, true))
             {
                 binaryWriter.Write(rootObjectId);
                 WriteSerializedItems(binaryWriter, _serializedTypes);
@@ -61,8 +69,6 @@ namespace ByrneLabs.Serializer
                 WriteSerializedItems(binaryWriter, _serializedKnownTypeObjects);
                 WriteSerializedItems(binaryWriter, _serializedObjects);
                 WriteSerializedItems(binaryWriter, _serializedArrays);
-
-                return memoryStream.ToArray();
             }
         }
 
@@ -108,7 +114,7 @@ namespace ByrneLabs.Serializer
             typeId = _nextId++;
             _typeIndex.Add(type, typeId);
 
-            using (var memoryStream = new MemoryStream(400))
+            using (var memoryStream = new MemoryStream())
             using (var binaryWriter = new BinaryWriter(memoryStream))
             {
                 var assemblyQualifiedNameBytes = Encoding.UTF8.GetBytes(type.AssemblyQualifiedName);
@@ -133,7 +139,7 @@ namespace ByrneLabs.Serializer
                 var fieldId = _nextId++;
                 _fieldsIndex.Add((type, field), fieldId);
 
-                using (var memoryStream = new MemoryStream(400))
+                using (var memoryStream = new MemoryStream())
                 using (var binaryWriter = new BinaryWriter(memoryStream))
                 {
                     binaryWriter.Write(typeId);
@@ -157,7 +163,7 @@ namespace ByrneLabs.Serializer
         {
             if (obj is string objString)
             {
-                using (var memoryStream = new MemoryStream(200))
+                using (var memoryStream = new MemoryStream())
                 using (var binaryWriter = new BinaryWriter(memoryStream))
                 {
                     var stringBytes = Encoding.UTF8.GetBytes(objString);
@@ -169,7 +175,7 @@ namespace ByrneLabs.Serializer
             }
             else if (obj.GetType().IsArray)
             {
-                using (var memoryStream = new MemoryStream(200))
+                using (var memoryStream = new MemoryStream())
                 using (var binaryWriter = new BinaryWriter(memoryStream))
                 {
                     var elementType = obj.GetType().GetElementType();
@@ -235,7 +241,7 @@ namespace ByrneLabs.Serializer
 
                 var typeId = GetTypeId(obj.GetType(), obj.GetType());
 
-                using (var memoryStream = new MemoryStream(20))
+                using (var memoryStream = new MemoryStream())
                 using (var binaryWriter = new BinaryWriter(memoryStream))
                 {
                     binaryWriter.Write(typeId);
@@ -247,7 +253,7 @@ namespace ByrneLabs.Serializer
             else
             {
                 var typeId = GetTypeId(obj.GetType(), obj.GetType());
-                using (var memoryStream = new MemoryStream(200))
+                using (var memoryStream = new MemoryStream())
                 using (var binaryWriter = new BinaryWriter(memoryStream))
                 {
                     binaryWriter.Write(typeId);
