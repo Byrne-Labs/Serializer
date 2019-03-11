@@ -4,13 +4,12 @@ using ByrneLabs.Commons;
 
 namespace ByrneLabs.Serializer.Tests.Mocks
 {
-    public class TreeNode
+    public abstract class TreeNode
     {
         private readonly Dictionary<object, object> _attributes = new Dictionary<object, object>();
         private readonly bool _boolValue;
         private readonly byte _byteValue;
         private readonly char _charValue;
-        private readonly IList<TreeNode> _children = new List<TreeNode>();
         private readonly DateTime _dateTimeValue;
         private readonly double _doubleValue;
         private readonly float _floatValue;
@@ -43,24 +42,9 @@ namespace ByrneLabs.Serializer.Tests.Mocks
             _stringValue = stringValue;
         }
 
-        public TreeNode(Dictionary<object, object> attributes, IList<TreeNode> children)
-        {
-            _attributes = attributes;
-            _children = children;
-        }
-
         public Dictionary<object, object> Attributes
         {
             get => _attributes;
-            set
-            {
-                // fake out, read only
-            }
-        }
-
-        public IList<TreeNode> Children
-        {
-            get => _children;
             set
             {
                 // fake out, read only
@@ -86,11 +70,11 @@ namespace ByrneLabs.Serializer.Tests.Mocks
                     sample.Parent = samples.RandomItem();
                 }
 
-                if (BetterRandom.Odds(0.8))
+                if (BetterRandom.Odds(0.8) && sample is TreeBranch treeBranch)
                 {
                     foreach (var child in samples.RandomItems(2, 20))
                     {
-                        sample.Children.Add(child);
+                        treeBranch.Children.Add(child);
                     }
                 }
 
@@ -106,7 +90,16 @@ namespace ByrneLabs.Serializer.Tests.Mocks
 
         private static TreeNode GetSample()
         {
-            var sample = new TreeNode(BetterRandom.NextBool(), BetterRandom.NextChar(), BetterRandom.NextByte(), BetterRandom.NextShort(), BetterRandom.NextInt(), BetterRandom.NextLong(), BetterRandom.NextUShort(), BetterRandom.NextUInt(), BetterRandom.NextULong(), BetterRandom.NextFloat(), BetterRandom.NextDouble(), BetterRandom.NextDateTime(), BetterRandom.NextString(1, 1000));
+            TreeNode sample;
+            if (BetterRandom.Odds(0.2))
+            {
+                sample = new TreeLeaf(BetterRandom.NextBool(), BetterRandom.NextChar(), BetterRandom.NextByte(), BetterRandom.NextShort(), BetterRandom.NextInt(), BetterRandom.NextLong(), BetterRandom.NextUShort(), BetterRandom.NextUInt(), BetterRandom.NextULong(), BetterRandom.NextFloat(), BetterRandom.NextDouble(), BetterRandom.NextDateTime(), BetterRandom.NextString(1, 1000));
+            }
+            else
+            {
+                sample = new TreeBranch(BetterRandom.NextBool(), BetterRandom.NextChar(), BetterRandom.NextByte(), BetterRandom.NextShort(), BetterRandom.NextInt(), BetterRandom.NextLong(), BetterRandom.NextUShort(), BetterRandom.NextUInt(), BetterRandom.NextULong(), BetterRandom.NextFloat(), BetterRandom.NextDouble(), BetterRandom.NextDateTime(), BetterRandom.NextString(1, 1000));
+            }
+
             return sample;
         }
 
@@ -131,8 +124,7 @@ namespace ByrneLabs.Serializer.Tests.Mocks
                 _uintValue == treeNode2._uintValue &&
                 _ulongValue == treeNode2._ulongValue &&
                 _ushortValue == treeNode2._ushortValue &&
-                _attributes.Count == treeNode2._attributes.Count &&
-                _children.Count == treeNode2._children.Count))
+                _attributes.Count == treeNode2._attributes.Count))
             {
                 return false;
             }
