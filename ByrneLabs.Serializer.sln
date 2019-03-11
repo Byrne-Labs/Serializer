@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.421
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ByrneLabs.Serializer", "ByrneLabs.Serializer\ByrneLabs.Serializer.csproj", "{96563CC6-4D1E-4E5E-BD20-DECA82ED507C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ByrneLabs.Serializer", "ByrneLabs.Serializer\ByrneLabs.Serializer.csproj", "{96563CC6-4D1E-4E5E-BD20-DECA82ED507C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ByrneLabs.Serializer.Tests", "ByrneLabs.Serializer.Tests\ByrneLabs.Serializer.Tests.csproj", "{D1EEB34C-F9B0-4B82-8316-6C23B90EE9A4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ByrneLabs.Serializer.Tests", "ByrneLabs.Serializer.Tests\ByrneLabs.Serializer.Tests.csproj", "{D1EEB34C-F9B0-4B82-8316-6C23B90EE9A4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

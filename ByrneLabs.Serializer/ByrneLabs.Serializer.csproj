@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <BuildNumber>17</BuildNumber>
+        <BuildNumber>18</BuildNumber>
         <ReleaseType>-alpha</ReleaseType>
         <AssemblyVersion>1.0.0.$(BuildNumber)</AssemblyVersion>
         <FileVersion>$(AssemblyVersion)</FileVersion>
