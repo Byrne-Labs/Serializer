@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <BuildNumber>18</BuildNumber>
+        <BuildNumber>19</BuildNumber>
         <ReleaseType>-alpha</ReleaseType>
         <AssemblyVersion>1.0.0.$(BuildNumber)</AssemblyVersion>
         <FileVersion>$(AssemblyVersion)</FileVersion>
@@ -20,8 +20,8 @@
         <Owners>byrnelabs</Owners>
         <Authors>byrnelabs</Authors>
         <PackageLicenseUrl>http://www.gnu.org/licenses/lgpl-3.0.txt</PackageLicenseUrl>
-        <PackageProjectUrl>https://github.com/ByrneLabs/Serializer</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/ByrneLabs/Serializer</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/Byrne-Labs/Serializer</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Byrne-Labs/Serializer</RepositoryUrl>
     </PropertyGroup>
 
     <Target Name="CopyPackage" AfterTargets="Pack">

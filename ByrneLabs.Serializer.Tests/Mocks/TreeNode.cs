@@ -15,12 +15,12 @@ namespace ByrneLabs.Serializer.Tests.Mocks
         private readonly float _floatValue;
         private readonly int _intValue;
         private readonly long _longValue;
+        private readonly int[][][][] _multiDimensionalArray;
         private readonly short _shortValue;
         private readonly string _stringValue;
         private readonly uint _uintValue;
         private readonly ulong _ulongValue;
         private readonly ushort _ushortValue;
-        private readonly int[][][][] _multiDimensionalArray;
 
         public TreeNode()
         {
@@ -127,6 +127,38 @@ namespace ByrneLabs.Serializer.Tests.Mocks
             return sample;
         }
 
+        public override bool Equals(object obj)
+        {
+            if (!(obj is TreeNode treeNode2) || treeNode2.GetType() != GetType() || treeNode2.GetHashCode() != GetHashCode())
+            {
+                return false;
+            }
+
+            if (!(
+                    _boolValue == treeNode2._boolValue &&
+                    _byteValue == treeNode2._byteValue &&
+                    _charValue == treeNode2._charValue &&
+                    _dateTimeValue == treeNode2._dateTimeValue &&
+                    _doubleValue == treeNode2._doubleValue &&
+                    _floatValue == treeNode2._floatValue &&
+                    _intValue == treeNode2._intValue &&
+                    _longValue == treeNode2._longValue &&
+                    _shortValue == treeNode2._shortValue &&
+                    _stringValue == treeNode2._stringValue &&
+                    _uintValue == treeNode2._uintValue &&
+                    _ulongValue == treeNode2._ulongValue &&
+                    _ushortValue == treeNode2._ushortValue &&
+                    _attributes.Count == treeNode2._attributes.Count) &&
+                ArraysEqual(treeNode2._multiDimensionalArray))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public override int GetHashCode() => HashBuilder.Hash(_boolValue, _byteValue, _charValue, _dateTimeValue, _intValue, _longValue, _shortValue, _stringValue, _uintValue, _ulongValue, _ushortValue);
+
         private bool ArraysEqual(int[][][][] multiDimensionalArray)
         {
             for (var dim1 = 0; dim1 < 4; dim1++)
@@ -148,37 +180,5 @@ namespace ByrneLabs.Serializer.Tests.Mocks
 
             return true;
         }
-
-        public override bool Equals(object obj)
-        {
-            if (!(obj is TreeNode treeNode2) || treeNode2.GetType() != GetType() || treeNode2.GetHashCode() != GetHashCode())
-            {
-                return false;
-            }
-
-            if (!(
-                _boolValue == treeNode2._boolValue &&
-                _byteValue == treeNode2._byteValue &&
-                _charValue == treeNode2._charValue &&
-                _dateTimeValue == treeNode2._dateTimeValue &&
-                _doubleValue == treeNode2._doubleValue &&
-                _floatValue == treeNode2._floatValue &&
-                _intValue == treeNode2._intValue &&
-                _longValue == treeNode2._longValue &&
-                _shortValue == treeNode2._shortValue &&
-                _stringValue == treeNode2._stringValue &&
-                _uintValue == treeNode2._uintValue &&
-                _ulongValue == treeNode2._ulongValue &&
-                _ushortValue == treeNode2._ushortValue &&
-                _attributes.Count == treeNode2._attributes.Count) &&
-                ArraysEqual((treeNode2._multiDimensionalArray)))
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        public override int GetHashCode() => HashBuilder.Hash(_boolValue, _byteValue, _charValue, _dateTimeValue, _intValue, _longValue, _shortValue, _stringValue, _uintValue, _ulongValue, _ushortValue);
     }
 }
