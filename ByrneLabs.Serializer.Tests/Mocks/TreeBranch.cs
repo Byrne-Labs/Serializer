@@ -21,8 +21,8 @@ namespace ByrneLabs.Serializer.Tests.Mocks
 
         }
 
-        public TreeBranch(bool boolValue, char charValue, byte byteValue, short shortValue, int intValue, long longValue, ushort ushortValue, uint uintValue, ulong ulongValue, float floatValue, double doubleValue, DateTime dateTimeValue, string stringValue) :
-            base(boolValue, charValue, byteValue, shortValue, intValue, longValue, ushortValue, uintValue, ulongValue, floatValue, doubleValue, dateTimeValue, stringValue)
+        public TreeBranch(bool boolValue, char charValue, byte byteValue, short shortValue, int intValue, long longValue, ushort ushortValue, uint uintValue, ulong ulongValue, float floatValue, double doubleValue, DateTime dateTimeValue, string stringValue, int[][][][] multiDimensionalArray) :
+            base(boolValue, charValue, byteValue, shortValue, intValue, longValue, ushortValue, uintValue, ulongValue, floatValue, doubleValue, dateTimeValue, stringValue, multiDimensionalArray)
         {
         }
 

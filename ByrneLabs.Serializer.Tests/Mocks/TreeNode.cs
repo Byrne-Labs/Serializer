@@ -20,12 +20,13 @@ namespace ByrneLabs.Serializer.Tests.Mocks
         private readonly uint _uintValue;
         private readonly ulong _ulongValue;
         private readonly ushort _ushortValue;
+        private readonly int[][][][] _multiDimensionalArray;
 
         public TreeNode()
         {
         }
 
-        public TreeNode(bool boolValue, char charValue, byte byteValue, short shortValue, int intValue, long longValue, ushort ushortValue, uint uintValue, ulong ulongValue, float floatValue, double doubleValue, DateTime dateTimeValue, string stringValue)
+        public TreeNode(bool boolValue, char charValue, byte byteValue, short shortValue, int intValue, long longValue, ushort ushortValue, uint uintValue, ulong ulongValue, float floatValue, double doubleValue, DateTime dateTimeValue, string stringValue, int[][][][] multiDimensionalArray)
         {
             _boolValue = boolValue;
             _charValue = charValue;
@@ -40,6 +41,7 @@ namespace ByrneLabs.Serializer.Tests.Mocks
             _doubleValue = doubleValue;
             _dateTimeValue = dateTimeValue;
             _stringValue = stringValue;
+            _multiDimensionalArray = multiDimensionalArray;
         }
 
         public Dictionary<object, object> Attributes
@@ -95,16 +97,56 @@ namespace ByrneLabs.Serializer.Tests.Mocks
         private static TreeNode GetSample()
         {
             TreeNode sample;
+            var multiDimensionalArray = new int[4][][][];
+            for (var dim1 = 0; dim1 < 4; dim1++)
+            {
+                multiDimensionalArray[dim1] = new int[4][][];
+                for (var dim2 = 0; dim2 < 4; dim2++)
+                {
+                    multiDimensionalArray[dim1][dim2] = new int[4][];
+                    for (var dim3 = 0; dim3 < 4; dim3++)
+                    {
+                        multiDimensionalArray[dim1][dim2][dim3] = new int[4];
+                        for (var dim4 = 0; dim4 < 4; dim4++)
+                        {
+                            multiDimensionalArray[dim1][dim2][dim3][dim4] = BetterRandom.Next();
+                        }
+                    }
+                }
+            }
+
             if (BetterRandom.Odds(0.2))
             {
-                sample = new TreeLeaf(BetterRandom.NextBool(), BetterRandom.NextChar(), BetterRandom.NextByte(), BetterRandom.NextShort(), BetterRandom.NextInt(), BetterRandom.NextLong(), BetterRandom.NextUShort(), BetterRandom.NextUInt(), BetterRandom.NextULong(), BetterRandom.NextFloat(), BetterRandom.NextDouble(), BetterRandom.NextDateTime(), BetterRandom.NextString(1, 1000));
+                sample = new TreeLeaf(BetterRandom.NextBool(), BetterRandom.NextChar(), BetterRandom.NextByte(), BetterRandom.NextShort(), BetterRandom.NextInt(), BetterRandom.NextLong(), BetterRandom.NextUShort(), BetterRandom.NextUInt(), BetterRandom.NextULong(), BetterRandom.NextFloat(), BetterRandom.NextDouble(), BetterRandom.NextDateTime(), BetterRandom.NextString(1, 1000), multiDimensionalArray);
             }
             else
             {
-                sample = new TreeBranch(BetterRandom.NextBool(), BetterRandom.NextChar(), BetterRandom.NextByte(), BetterRandom.NextShort(), BetterRandom.NextInt(), BetterRandom.NextLong(), BetterRandom.NextUShort(), BetterRandom.NextUInt(), BetterRandom.NextULong(), BetterRandom.NextFloat(), BetterRandom.NextDouble(), BetterRandom.NextDateTime(), BetterRandom.NextString(1, 1000));
+                sample = new TreeBranch(BetterRandom.NextBool(), BetterRandom.NextChar(), BetterRandom.NextByte(), BetterRandom.NextShort(), BetterRandom.NextInt(), BetterRandom.NextLong(), BetterRandom.NextUShort(), BetterRandom.NextUInt(), BetterRandom.NextULong(), BetterRandom.NextFloat(), BetterRandom.NextDouble(), BetterRandom.NextDateTime(), BetterRandom.NextString(1, 1000), multiDimensionalArray);
             }
 
             return sample;
+        }
+
+        private bool ArraysEqual(int[][][][] multiDimensionalArray)
+        {
+            for (var dim1 = 0; dim1 < 4; dim1++)
+            {
+                for (var dim2 = 0; dim2 < 4; dim2++)
+                {
+                    for (var dim3 = 0; dim3 < 4; dim3++)
+                    {
+                        for (var dim4 = 0; dim4 < 4; dim4++)
+                        {
+                            if (multiDimensionalArray[dim1][dim2][dim3][dim4] != _multiDimensionalArray[dim1][dim2][dim3][dim4])
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return true;
         }
 
         public override bool Equals(object obj)
@@ -128,7 +170,8 @@ namespace ByrneLabs.Serializer.Tests.Mocks
                 _uintValue == treeNode2._uintValue &&
                 _ulongValue == treeNode2._ulongValue &&
                 _ushortValue == treeNode2._ushortValue &&
-                _attributes.Count == treeNode2._attributes.Count))
+                _attributes.Count == treeNode2._attributes.Count) &&
+                ArraysEqual((treeNode2._multiDimensionalArray)))
             {
                 return false;
             }
