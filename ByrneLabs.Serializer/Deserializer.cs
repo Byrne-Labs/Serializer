@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace ByrneLabs.Serializer
@@ -239,7 +240,7 @@ namespace ByrneLabs.Serializer
             var objectId = binaryReader.ReadUInt32();
             var typeId = binaryReader.ReadUInt32();
             var fieldCount = binaryReader.ReadInt32();
-            var obj = Activator.CreateInstance(_types[typeId]);
+            var obj = FormatterServices.GetUninitializedObject(_types[typeId]);
 
             var fieldsToLoad = new (uint, uint)[fieldCount];
 

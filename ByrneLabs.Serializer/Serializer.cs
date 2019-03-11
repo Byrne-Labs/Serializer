@@ -81,20 +81,6 @@ namespace ByrneLabs.Serializer
                 return typeId;
             }
 
-            if (type == originalType)
-            {
-                var constructedType = type;
-                while (constructedType.DeclaringType != null)
-                {
-                    constructedType = constructedType.DeclaringType;
-                }
-
-                if (!_knownTypes.Contains(constructedType) && constructedType.GetConstructor(Array.Empty<Type>()) == null)
-                {
-                    throw new ArgumentException($"The type {type.FullName} does not have a default constructor");
-                }
-            }
-
             typeId = _nextId++;
             _typeIndex.Add(type, typeId);
 

@@ -55,6 +55,10 @@ namespace ByrneLabs.Serializer.Tests.Mocks
 
         public TreeNode Parent { get; set; }
 
+        public string SomeOtherProperty { get; set; }
+
+        public string SomeProperty { get; set; } = "asdf";
+
         public static IEnumerable<TreeNode> GetSamples(int sampleCount)
         {
             var samples = new List<TreeNode>(sampleCount);

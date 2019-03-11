@@ -9,10 +9,7 @@ namespace ByrneLabs.Serializer.Tests.Mocks
         {
         }
 
-        public TreeLeaf()
-        {
-
-        }
+        public string SomeProperty { get; set; }
 
         public override bool Equals(object obj) => obj is TreeLeaf && base.Equals(obj);
     }
